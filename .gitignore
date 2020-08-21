@@ -5,3 +5,5 @@ config.py
 .idea/
 venv/
 env/
+
+*.pyc
