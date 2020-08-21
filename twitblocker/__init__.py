@@ -36,7 +36,7 @@ def _send_static(path):
 @app.route('/')
 def _index():
     commit_hash = None
-    screen_name = None
+    user = None
     try:
         commit_hash = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']) \
                                 .strip() \
@@ -44,11 +44,11 @@ def _index():
     # pylint: disable=bare-except
     except:
         pass
-    if 'token' in session:
-        screen_name = session['token']['screen_name']
+    if 'user' in session:
+        user = session['user']
     else:
         pass
-    return render_template('home.html', commit_hash=commit_hash, screen_name=screen_name)
+    return render_template('home.html', commit_hash=commit_hash, user=user)
 
 
 @app.route('/login')
