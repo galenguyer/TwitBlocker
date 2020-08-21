@@ -15,6 +15,11 @@
                 <h3>Hello, World</h3>
             {% endif %}
         </div>
+        {% if blocks %}
+            {% for block in blocks %}
+                <p>{{block.name}}</p>
+            {% endfor %}
+        {% endif %}
         {% if commit_hash %}
         <div class="git">
             <p>

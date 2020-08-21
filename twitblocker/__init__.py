@@ -66,9 +66,11 @@ def _index():
         user_auth.set_access_token(auth_user.get_oauth_token(), auth_user.get_oauth_token_secret())
         api = tweepy.API(user_auth)
         user = api.me()
+        blocks = api.blocks()
     else:
         user = None
-    return render_template('home.html', commit_hash=commit_hash, user=user)
+        blocks = None
+    return render_template('home.html', commit_hash=commit_hash, user=user, blocks=blocks)
 
 
 from .routes import auth
