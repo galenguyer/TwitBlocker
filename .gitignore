@@ -1,2 +1,7 @@
 # Don't commit secrets!
 config.py
+
+# ignore IDE configs
+.idea/
+venv/
+env/

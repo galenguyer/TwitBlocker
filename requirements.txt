@@ -1,6 +1,8 @@
+alembic
+authlib
 flask
-
 gunicorn
-
 pylint
 pylint-quotes
+requests
+sqlalchemy

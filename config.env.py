@@ -15,3 +15,6 @@ PORT = os.environ.get('PORT', 5000)
 SERVER_NAME = os.environ.get('SERVER_NAME', 'localhost:5000')
 SECRET_KEY = os.environ.get('SESSION_KEY', default=''.join(secrets.token_hex(16)))
 
+# Twitter Secrets
+TWITTER_CLIENT_ID = os.environ.get('TWITTER_CLIENT_ID', None)
+TWITTER_CLIENT_SECRET = os.environ.get('TWITTER_CLIENT_SECRET', None)
