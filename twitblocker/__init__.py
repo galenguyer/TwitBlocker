@@ -27,6 +27,16 @@ oauth.register(
     fetch_token=lambda: session.get('token'),  # DON'T DO IT IN PRODUCTION
 )
 
+# grab the commit hash once on startup, if possible
+commit_hash = None
+try:
+    commit_hash = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']) \
+        .strip() \
+        .decode('utf-8')
+# pylint: disable=bare-except
+except:
+    pass
+
 
 @app.route('/static/<path:path>', methods=['GET'])
 def _send_static(path):
@@ -35,19 +45,10 @@ def _send_static(path):
 
 @app.route('/')
 def _index():
-    commit_hash = None
-    user = None
-    try:
-        commit_hash = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']) \
-                                .strip() \
-                                .decode('utf-8')
-    # pylint: disable=bare-except
-    except:
-        pass
     if 'user' in session:
         user = session['user']
     else:
-        pass
+        user = None
     return render_template('home.html', commit_hash=commit_hash, user=user)
 
 
@@ -63,14 +64,11 @@ def auth():
     url = 'account/verify_credentials.json'
     resp = oauth.twitter.get(url, params={'skip_status': True})
     user = resp.json()
-    # DON'T DO IT IN PRODUCTION, SAVE INTO DB IN PRODUCTION
-    session['token'] = token
     session['user'] = user
     return redirect('/')
 
 
 @app.route('/logout')
 def logout():
-    session.pop('token', None)
     session.pop('user', None)
     return redirect('/')
