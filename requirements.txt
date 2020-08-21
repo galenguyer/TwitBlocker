@@ -1,8 +1,10 @@
 alembic
 authlib
 flask
+flask_sqlalchemy
 gunicorn
 pylint
 pylint-quotes
 requests
 sqlalchemy
+tweepy

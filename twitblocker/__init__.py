@@ -1,11 +1,19 @@
 """ A small flask Hello World """
 
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
+
 import os
 import subprocess
+import logging
+import tweepy
+import json
+
 
 from flask import Flask, jsonify, render_template, send_from_directory
 from flask import session, render_template, redirect, url_for
 from authlib.integrations.flask_client import OAuth
+from flask_sqlalchemy import SQLAlchemy
+
 
 app = Flask(__name__)
 
@@ -17,6 +25,8 @@ _pyfile_config = os.path.join(_root_dir, 'config.py')
 if os.path.exists(_pyfile_config):
     app.config.from_pyfile(_pyfile_config)
 
+logging.getLogger().setLevel('DEBUG')
+
 oauth = OAuth(app)
 oauth.register(
     name='twitter',
@@ -26,6 +36,11 @@ oauth.register(
     authorize_url='https://api.twitter.com/oauth/authenticate',
     fetch_token=lambda: session.get('token'),  # DON'T DO IT IN PRODUCTION
 )
+
+db = SQLAlchemy(app)
+app.logger.info('SQLAlchemy pointed at ' + repr(db.engine.url))
+from .models import *
+db.create_all()
 
 # grab the commit hash once on startup, if possible
 commit_hash = None
@@ -45,30 +60,15 @@ def _send_static(path):
 
 @app.route('/')
 def _index():
-    if 'user' in session:
-        user = session['user']
+    if 'token' in session:
+        auth_user = AuthUser.by_token(session['token'])
+        user_auth = tweepy.auth.OAuthHandler(app.config['TWITTER_CLIENT_ID'], app.config['TWITTER_CLIENT_SECRET'])
+        user_auth.set_access_token(auth_user.get_oauth_token(), auth_user.get_oauth_token_secret())
+        api = tweepy.API(user_auth)
+        user = api.me()
     else:
         user = None
     return render_template('home.html', commit_hash=commit_hash, user=user)
 
 
-@app.route('/login')
-def login():
-    redirect_uri = url_for('auth', _external=True)
-    return oauth.twitter.authorize_redirect(redirect_uri)
-
-
-@app.route('/auth')
-def auth():
-    token = oauth.twitter.authorize_access_token()
-    url = 'account/verify_credentials.json'
-    resp = oauth.twitter.get(url, params={'skip_status': True})
-    user = resp.json()
-    session['user'] = user
-    return redirect('/')
-
-
-@app.route('/logout')
-def logout():
-    session.pop('user', None)
-    return redirect('/')
+from .routes import auth

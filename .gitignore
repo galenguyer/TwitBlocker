@@ -7,3 +7,5 @@ venv/
 env/
 
 *.pyc
+twitblocker/sqlite3.exe
+*.sqlite3
