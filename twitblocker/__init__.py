@@ -62,3 +62,10 @@ def auth():
     session['token'] = token
     session['user'] = user
     return redirect('/')
+
+
+@app.route('/logout')
+def logout():
+    session.pop('token', None)
+    session.pop('user', None)
+    return redirect('/')
